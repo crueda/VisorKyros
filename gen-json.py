@@ -27,8 +27,8 @@ LOG_FOR_ROTATE = 10
 
 MYSQL_IP = config['mysql_host']
 MYSQL_PORT = config['mysql_port']
-MYSQL_USER = config['mysql_db_name']
-MYSQL_NAME = config['mysql_user']
+MYSQL_USER = config['mysql_user']
+MYSQL_NAME = config['mysql_db_name']
 MYSQL_PASSWORD = config['mysql_passwd']
 
 INTERNAL_LOG = "/tmp/kyros-json.log"
