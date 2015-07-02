@@ -68,7 +68,7 @@ def getTrackingHistorico():
 		logger.error('Error connecting to database: IP:%s, USER:%s, PASSWORD:%s, DB:%s', MYSQL_IP, MYSQL_USER, MYSQL_PASSWORD, MYSQL_NAME)
 
 	cursor = dbKyros4.cursor()
-	cursor.execute("""SELECT VEHICLE_LICENSE as DEV, POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60 as LAT, POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60 as LON, VEHICLE.START_STATE as STATUS from TRACKING where VEHICLE_LICENSE in ('001', '002', '003')""" )
+	cursor.execute("""SELECT VEHICLE_LICENSE as DEV, POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60 as LAT, POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60 as LON from TRACKING where VEHICLE_LICENSE in ('001', '002', '003')""" )
 	result = cursor.fetchall()
 	
 	try:
@@ -86,14 +86,14 @@ def main():
 	trackingInfo = getTrackingHistorico()
 
 	for tracking in trackingInfo:
-		position = {"geometry": {"type": "Point", "coordinates": [tracking[2], tracking[1]]}, "type": "Feature", "properties":{"name":str(tracking[0]), "state":str(tracking[3])}}
+		position = {"geometry": {"type": "Point", "coordinates": [tracking[2], tracking[1]]}, "type": "Feature", "properties":{"name":str(tracking[0])}}
 		array_list.append(position)
 
-	#with open('/var/www2/tracking_wrc.json', 'w') as outfile:
-	with open('/Applications/MAMP/htdocs/visorKyros/tracking_historico.json', 'w') as outfile:
+	with open('/var/www2/tracking_historico.json', 'w') as outfile:
+	#with open('/Applications/MAMP/htdocs/visorKyros/tracking_historico.json', 'w') as outfile:
 		json.dump(array_list, outfile)
 
-	sys.exit()
+	#sys.exit()
  
 if __name__ == '__main__':
     main()

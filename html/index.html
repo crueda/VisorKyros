@@ -116,7 +116,7 @@
       if (ident ==  "001") {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 1,
+          scale: 0.9,
           src: 'img/coches/wv.png'
          }))
         });
@@ -124,7 +124,7 @@
       else if (ident ==  "003") {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 1,
+          scale: 0.7,
           src: 'img/coches/ci.png'
          }))
         });
@@ -132,7 +132,7 @@
       else if (ident ==  "008") {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 1,
+          scale: 0.8,
           src: 'img/coches/hi.png'
          }))
         });
@@ -405,11 +405,23 @@
                   new ol.layer.Group({
                     'title': 'Overlays',
                     layers: [
+                        new ol.layer.Heatmap({
+                        title: 'Heatmap',
+                        name: 'Heatmap',
+                        source : new ol.source.GeoJSON({
+                            projection : 'EPSG:900913',
+                            url: "./tracking_historico.json"
+                            }),
+                        //style: styleFunction,
+                        radius: 4,
+                        visible: false
+                        }),
                         vectorKmlJueves,             
                         vectorKmlViernes,             
                         vectorKmlSabado,             
                         vectorKmlDomingo,
                         vectorLayer,
+
                     ]
                   })
                     
