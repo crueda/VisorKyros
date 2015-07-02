@@ -104,7 +104,7 @@
         source: vectorSource
       });
 
-    function add(ident, lon, lat, heading) {
+    function add(ident, lon, lat, state) {
       var geo_point = new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326',     
         'EPSG:3857'));
 
@@ -112,110 +112,46 @@
          geometry: geo_point,
       });
 
-      if (heading < 30) {
+
+      if (ident ==  "001") {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros.png'
+          scale: 1,
+          src: 'img/coches/wv.png'
          }))
         });
-
-      } else if (heading > 29 && heading < 60) {
+      }
+      else if (ident ==  "003") {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_30.png'
+          scale: 1,
+          src: 'img/coches/ci.png'
          }))
         });
-
-      } else if (heading > 59 && heading < 90) {
+      }
+      else if (ident ==  "008") {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_60.png'
+          scale: 1,
+          src: 'img/coches/hi.png'
          }))
         });
-
-      } else if (heading > 89 && heading < 120) {
+      }
+      else if (state ==  "0STOP") {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_90.png'
+          scale: 1,
+          src: 'img/Stop/FiaStop'+ident+'.png'
          }))
         });
-
-      } else if (heading > 119 && heading < 150) {
+      }
+      else {
         var iconStyle = new ol.style.Style({
          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_120.png'
+          scale: 1,
+          src: 'img/OnStage/FiaOnStage'+ident+'.png'
          }))
         });
-
-      } else if (heading > 149 && heading < 180) {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_150.png'
-         }))
-        });
-
-      } else if (heading > 179 && heading < 210) {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_180.png'
-         }))
-        });
-
-      } else if (heading > 209 && heading < 240) {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_210.png'
-         }))
-        });
-
-      } else if (heading > 239 && heading < 270) {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_240.png'
-         }))
-        });
-
-      } else if (heading > 269 && heading < 300) {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_270.png'
-         }))
-        });
-
-      } else if (heading > 299 && heading < 330) {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_300.png'
-         }))
-        });
-
-      } else if (heading > 329 && heading < 361) {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros_330.png'
-         }))
-        });
-
-      } else {
-        var iconStyle = new ol.style.Style({
-         image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-          scale: 0.5,
-          src: 'img/plane_kyros.png'
-         }))
-        });      
-
       }
 
       iconFeature.setStyle(iconStyle);
@@ -227,31 +163,31 @@
         
 
     function initLayer() {
-      $.getJSON( "tracking.json", function( data ) {
+      $.getJSON( "tracking_wrc.json", function( data ) {
         var items = [];
           $.each( data, function( key, val ) {
-              add (val.properties.name,val.geometry.coordinates[0],val.geometry.coordinates[1],val.properties.heading);
+              add (val.properties.name,val.geometry.coordinates[0],val.geometry.coordinates[1], val.properties.state);
               dict[val.properties.name] = [val.geometry.coordinates[0],val.geometry.coordinates[1]];
           });                    
         });          
     }
     
     function reloadLayer() {
-      $.getJSON( "tracking.json", function( data ) {
+      $.getJSON( "tracking_wrc.json", function( data ) {
         var items = [];
         $.each( data, function( key, val ) {
-          check (val.properties.name,val.geometry.coordinates[0],val.geometry.coordinates[1],val.properties.heading);
+          check (val.properties.name,val.geometry.coordinates[0],val.geometry.coordinates[1], val.properties.state);
         });               
       });
     }
 
-    function check(ident,lon,lat,heading) {
+    function check(ident,lon,lat, state) {
       if (dict[ident][0] != lon  || dict[ident][1] != lat) 
         {
           iFeature = vectorSource.getFeatureById(ident);
           if (iFeature!=null) {
             vectorSource.removeFeature(iFeature);
-            add (ident,lon,lat,heading);
+            add (ident,lon,lat, state);
           }
         }
       }
@@ -265,6 +201,38 @@
         <input type="button" value="reload" onclick="javascript:reloadLayer();" /-->
 
         <script type="text/javascript">
+
+          var projection = ol.proj.get('EPSG:3857');
+          var vectorKmlJueves = new ol.layer.Vector({
+            title: 'Jueves',
+                      scale: 0.5,
+            source: new ol.source.KML({
+            projection: projection,
+            url: './kml/jueves_polonia.kml'
+            })
+          });
+          var vectorKmlViernes = new ol.layer.Vector({
+            title: 'Viernes',
+            source: new ol.source.KML({
+            projection: projection,
+            url: './kml/viernes_polonia.kml'
+            })
+          });
+          var vectorKmlSabado = new ol.layer.Vector({
+            title: 'Sabado',
+            source: new ol.source.KML({
+            projection: projection,
+            url: './kml/sabado_polonia.kml'
+            })
+          });
+          var vectorKmlDomingo = new ol.layer.Vector({
+            title: 'Domingo',
+            source: new ol.source.KML({
+            projection: projection,
+            url: './kml/domingo_polonia.kml'
+            })
+          });
+
 
           mapOL = new ol.Map({
             target: 'olmap',
@@ -437,15 +405,20 @@
                   new ol.layer.Group({
                     'title': 'Overlays',
                     layers: [
-                        vectorLayer,                 
+                        vectorKmlJueves,             
+                        vectorKmlViernes,             
+                        vectorKmlSabado,             
+                        vectorKmlDomingo,
+                        vectorLayer,
                     ]
                   })
                     
                 ],
 
                 view: new ol.View({                  
-                    center: ol.proj.transform([-5.69, 40.00], 'EPSG:4326', 'EPSG:3857'),
-                    zoom: 6
+                    //center: ol.proj.transform([-5.69, 40.00], 'EPSG:4326', 'EPSG:3857'),
+                    center: ol.proj.transform([21.563168, 53.801366], 'EPSG:4326', 'EPSG:3857'),
+                    zoom: 12
                 })
             });
 

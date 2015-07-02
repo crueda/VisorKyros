@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 #-*- coding: UTF-8 -*-
 
-# autor: Ignacio Gilbaja
-# date: 2013-05-06
-# mail: igilbaja@oysta-technology.com
+# autor: Carlos Rueda
+# date: 2015-07-01
 # version: 1.1
 
 ##################################################################################
@@ -20,12 +19,23 @@ import time
 import json
 
 #### VARIABLES #########################################################
-MYSQL_IP = "localhost"
-MYSQL_NAME = "kyros4"
-MYSQL_USER = "root"
-MYSQL_PASSWORD = "dei.h7w59G.f3"
+from configobj import ConfigObj
+#config = ConfigObj('/opt/gen-json/visor_wrc.properties')
+config = ConfigObj('./visor_wrc.properties')
+
+INTERNAL_LOG_FILE = config['directory_logs'] + "/visor_wrc.log"
+LOG_FOR_ROTATE = 10
+
+MYSQL_IP = config['mysql_host']
+MYSQL_PORT = config['mysql_port']
+MYSQL_USER = config['mysql_user']
+MYSQL_NAME = config['mysql_db_name']
+MYSQL_PASSWORD = config['mysql_passwd']
 
 INTERNAL_LOG = "/tmp/kyros-json.log"
+
+PID = "/var/run/json-generator"
+
 
 ########################################################################
 # definimos los logs internos que usaremos para comprobar errores
@@ -35,7 +45,7 @@ if not os.path.exists(log_folder):
 	os.makedirs(log_folder)
 
 try:
-	logger = logging.getLogger('kyros-json')
+	logger = logging.getLogger('wrc-json')
 	loggerHandler = logging.handlers.TimedRotatingFileHandler(INTERNAL_LOG , 'midnight', 1, backupCount=10)
 	formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 	loggerHandler.setFormatter(formatter)
@@ -50,14 +60,15 @@ except:
 ########################################################################
 
 
-def getTracking():
+def getTrackingHistorico():
+	#dbKyros4 = MySQLdb.connect(MYSQL_IP, MYSQL_USER, MYSQL_PASSWORD, MYSQL_NAME)
 	try:
 		dbKyros4 = MySQLdb.connect(MYSQL_IP, MYSQL_USER, MYSQL_PASSWORD, MYSQL_NAME)
 	except:
 		logger.error('Error connecting to database: IP:%s, USER:%s, PASSWORD:%s, DB:%s', MYSQL_IP, MYSQL_USER, MYSQL_PASSWORD, MYSQL_NAME)
 
 	cursor = dbKyros4.cursor()
-	cursor.execute("""SELECT DEVICE_ID as DEV, POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60 as LAT, POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60 as LON, HEADING AS HEAD from TRACKING_1""" )
+	cursor.execute("""SELECT VEHICLE_LICENSE as DEV, POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60 as LAT, POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60 as LON, VEHICLE.START_STATE as STATUS from TRACKING where VEHICLE_LICENSE in ('001', '002', '003')""" )
 	result = cursor.fetchall()
 	
 	try:
@@ -68,15 +79,22 @@ def getTracking():
 	cursor.close
 	dbFrontend.close
 
-while True:
+
+def main():
+	
 	array_list = []
-	trackingInfo = getTracking()
+	trackingInfo = getTrackingHistorico()
 
 	for tracking in trackingInfo:
-		position = {"geometry": {"type": "Point", "coordinates": [tracking[2], tracking[1]]}, "type": "Feature", "properties":{"name":str(tracking[0]), "heading":tracking[3]}}
+		position = {"geometry": {"type": "Point", "coordinates": [tracking[2], tracking[1]]}, "type": "Feature", "properties":{"name":str(tracking[0]), "state":str(tracking[3])}}
 		array_list.append(position)
 
-	with open('/var/www/tracking.json', 'w') as outfile:
+	#with open('/var/www2/tracking_wrc.json', 'w') as outfile:
+	with open('/Applications/MAMP/htdocs/visorKyros/tracking_historico.json', 'w') as outfile:
 		json.dump(array_list, outfile)
-	
-	time.sleep(2)
+
+	sys.exit()
+ 
+if __name__ == '__main__':
+    main()
+
