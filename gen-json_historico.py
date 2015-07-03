@@ -84,7 +84,7 @@ def main():
 	
 	array_list = []
 	trackingInfo = getTrackingHistorico()
-
+	
 	for tracking in trackingInfo:
 		position = {"geometry": {"type": "Point", "coordinates": [tracking[2], tracking[1]]}, "type": "Feature", "properties":{"name":str(tracking[0])}}
 		array_list.append(position)
