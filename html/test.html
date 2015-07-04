@@ -31,7 +31,7 @@
 
     <script type="text/javascript">
 
-    var testIconFeature;
+    var testIconFeature = null ;
 
       var image = new ol.style.Circle({
         radius: 10,
@@ -133,12 +133,27 @@
 
     function reloadLayer() {
 
-      var coordinate = testIconFeature.getGeometry().getCoordinates();
+      //var coordinate = testIconFeature.getGeometry().getCoordinates();
       //move coordinates some distance
-      ol.coordinate.add(coordinate, 10, 10);
+      //ol.coordinate.add(coordinate, 10, 10);
       //use setGeometry to move it   
-      testIconFeature.setGeometry(new ol.coordinate);
+      testIconFeature.setGeometry(ol.coordinate.add([5,3], 10, 10));
 
+
+
+             vectorSource.forEachFeature(function(feature){
+        var coordinate = feature.getGeometry().getCoordinates();
+        //move coordinates a random distance
+        ol.coordinate.add(coordinate, [Math.random()*5000000, Math.random()*5000000]);     
+        //create new feature with moved coordinates
+        var feature = new ol.Feature({
+            geometry: new  ol.geom.Point(coordinate)
+        });
+        vectorSource.addFeature(feature);
+    });
+
+//var coord = [7.85, 47.983333];
+//ol.coordinate.add(coord, [-2, 4]);
     }
 
     function initLayer0() {
